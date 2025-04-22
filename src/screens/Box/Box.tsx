@@ -11,7 +11,7 @@ export const Box = (): JSX.Element => {
   const horizontalRef = useRef(null);
   const verticalRef = useRef(null);
 
-  // Product data with Unsplash images
+  // Product data with original Unsplash images
   const products = [
     { id: '1', name: "CHAIN", price: 369, image: "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" },
     { id: '2', name: "RING", price: 369, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" },
@@ -94,69 +94,72 @@ export const Box = (): JSX.Element => {
   return (
     <main className="relative w-full min-h-screen bg-white overflow-hidden">
       <div className="container mx-auto px-4 py-8 relative">
-        {/* Background pattern elements */}
+        {/* Background pattern elements - Responsive adjustments */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {/* Horizontal RARE PACKAGE strip */}
-          <div className="absolute w-full overflow-hidden h-12 top-32 left-0 z-0">
+          {/* Horizontal RARE PACKAGE strip - Responsive positioning */}
+          <div className="absolute w-full overflow-hidden h-12 top-24 md:top-32 left-0 z-0">
             <div 
               ref={horizontalRef}
               className="flex flex-row flex-nowrap whitespace-nowrap py-2"
               style={{ width: "400%" }}
             >
               {createRarePackageItems(40)}
-              {createRarePackageItems(40)} {/* Duplicate for seamless scrolling */}
+              {createRarePackageItems(40)}
             </div>
           </div>
 
-          {/* Vertical RARE PACKAGE strip */}
-          <div className="absolute h-full overflow-hidden w-16 top-0 right-12 z-50">
+          {/* Vertical RARE PACKAGE strip - Hidden on mobile, visible on larger screens */}
+          <div className="absolute h-full overflow-hidden w-16 top-0 right-0 md:right-12 z-10 hidden md:block">
             <div 
               ref={verticalRef}
               className="flex flex-col items-center py-2"
               style={{ height: "200%" }}
             >
               {createRarePackageItems(10, true)}
-              {createRarePackageItems(10, true)} {/* Duplicate for seamless scrolling */}
+              {createRarePackageItems(10, true)}
             </div>
           </div>
         </div>
 
-        {/* Product grid - Increased size by 15px */}
-        <div className="flex flex-row justify-center gap-8 mt-48 mb-16 relative z-10">
+        {/* Product grid - Responsive grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-32 md:mt-48 mb-16 relative z-10 max-w-6xl mx-auto">
           {products.map((product) => (
-            <div key={product.id} className="flex flex-col items-center">
-              {/* Product image - increased size by 15px from 40px to 55px */}
-              <div className="mb-4" style={{ width: "210px", height: "210px" }}>
+            <Card key={product.id} className="flex flex-col overflow-hidden border border-gray-200 rounded text-sm">
+            <CardContent className="p-0">
+              <div className="w-full aspect-square">
                 <img 
                   src={product.image} 
                   alt={`${product.name} product image`} 
                   className="w-full h-full object-cover"
                 />
               </div>
-
-              {/* Product details */}
-              <div className="flex items-center justify-between w-full">
-                <div className="text-gray-700 text-base">
-                  {product.name}
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <div className="w-6 h-6 bg-gray-100 border border-gray-300 flex items-center justify-center text-sm">
-                    {cart[product.id] || 0}
+          
+              <div className="p-2"> {/* Reduced padding */}
+                <div className="flex items-center justify-between w-full">
+                  <div className="text-gray-700 text-sm"> {/* Smaller font */}
+                    {product.name}
                   </div>
-                  <button
-                    onClick={() => updateQuantity(product.id, true)}
-                    className="w-6 h-6 bg-gray-100 border border-gray-300 flex items-center justify-center text-sm"
-                  >
-                    +
-                  </button>
+          
+                  <div className="flex items-center gap-1">
+                    <div className="w-5 h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs">
+                      {cart[product.id] || 0}
+                    </div>
+                    <button
+                      onClick={() => updateQuantity(product.id, true)}
+                      className="w-5 h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+          
+                <div className="font-medium text-black text-sm w-full mt-1">
+                  ₹ {product.price}
                 </div>
               </div>
-
-              <div className="font-medium text-black text-base w-full mt-2">
-                ₹ {product.price}
-              </div>
-            </div>
+            </CardContent>
+          </Card>
+          
           ))}
         </div>
 
@@ -173,11 +176,11 @@ export const Box = (): JSX.Element => {
           </Button>
         </div>
 
-        {/* Footer */}
+        {/* Footer - Responsive layout */}
         <footer className="mt-20 relative z-10 bg-white pt-6">
           <Separator className="mb-4 bg-gray-300" />
-          <div className="flex flex-row justify-between items-center gap-4 pb-4">
-            <div className="flex gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-4">
+            <div className="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-start">
               {footerLinks.map((link, index) => (
                 <a
                   key={index}
@@ -188,7 +191,7 @@ export const Box = (): JSX.Element => {
                 </a>
               ))}
             </div>
-            <div className="font-normal text-black text-xs text-right">
+            <div className="font-normal text-black text-xs text-center md:text-right mt-4 md:mt-0">
               rarepackage regd. trademark
             </div>
           </div>
