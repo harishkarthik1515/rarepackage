@@ -13,9 +13,9 @@ export const Box = (): JSX.Element => {
 
   // Product data
   const products = [
-    { id: '1', name: "CHAIN", price: 369, image: "/images/pro1.png" },
-    { id: '2', name: "RING", price: 369, image: "/images/pro2.png" },
-    { id: '3', name: "BRACELET", price: 369, image: "/images/pro3.png" },
+    { id: '1', name: "CHAIN", price: 369, image: "./public/pro1.png" },
+    { id: '2', name: "RING", price: 369, image: "./public/pro2.png" },
+    { id: '3', name: "BRACELET", price: 369, image: "./public/pro3.png" },
   ];
 
   // Footer links data
@@ -128,15 +128,15 @@ export const Box = (): JSX.Element => {
               {/* Product image - increased size by 15px from 40px to 55px */}
               <div className="w-55 h-55 mb-4" style={{ width: "210px", height: "210px" }}>
                 {index === 0 && (
-                  <img src="/images/pro1.png" alt="Gold ring on purple background" className="w-full h-full object-cover" />
+                  <img src={product.image} alt="Gold ring on purple background" className="w-full h-full object-cover" />
                 )}
                 {index === 1 && (
                   <div className="relative w-full h-full">
-                    <img src="/images/pro2.png" alt="Silver chain with black background" className="w-full h-full object-cover" />
+                    <img src={product.image} alt="Silver chain with black background" className="w-full h-full object-cover" />
                   </div>
                 )}
                 {index === 2 && (
-                  <img src="/images/pro3.png" alt="Silver bracelet on white background" className="w-full h-full object-cover" />
+                  <img src={product.image} alt="Silver bracelet on white background" className="w-full h-full object-cover" />
                 )}
               </div>
 
