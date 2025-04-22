@@ -11,11 +11,11 @@ export const Box = (): JSX.Element => {
   const horizontalRef = useRef(null);
   const verticalRef = useRef(null);
 
-  // Product data
+  // Product data with Unsplash images
   const products = [
-    { id: '1', name: "CHAIN", price: 369, image: "./public/pro1.png" },
-    { id: '2', name: "RING", price: 369, image: "./public/pro2.png" },
-    { id: '3', name: "BRACELET", price: 369, image: "./public/pro3.png" },
+    { id: '1', name: "CHAIN", price: 369, image: "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" },
+    { id: '2', name: "RING", price: 369, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" },
+    { id: '3', name: "BRACELET", price: 369, image: "https://images.unsplash.com/photo-1744472457504-f99a96ecbd3e?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
   ];
 
   // Footer links data
@@ -123,21 +123,15 @@ export const Box = (): JSX.Element => {
 
         {/* Product grid - Increased size by 15px */}
         <div className="flex flex-row justify-center gap-8 mt-48 mb-16 relative z-10">
-          {products.map((product, index) => (
+          {products.map((product) => (
             <div key={product.id} className="flex flex-col items-center">
               {/* Product image - increased size by 15px from 40px to 55px */}
-              <div className="w-55 h-55 mb-4" style={{ width: "210px", height: "210px" }}>
-                {index === 0 && (
-                  <img src={product.image} alt="Gold ring on purple background" className="w-full h-full object-cover" />
-                )}
-                {index === 1 && (
-                  <div className="relative w-full h-full">
-                    <img src={product.image} alt="Silver chain with black background" className="w-full h-full object-cover" />
-                  </div>
-                )}
-                {index === 2 && (
-                  <img src={product.image} alt="Silver bracelet on white background" className="w-full h-full object-cover" />
-                )}
+              <div className="mb-4" style={{ width: "210px", height: "210px" }}>
+                <img 
+                  src={product.image} 
+                  alt={`${product.name} product image`} 
+                  className="w-full h-full object-cover"
+                />
               </div>
 
               {/* Product details */}
