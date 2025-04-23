@@ -176,86 +176,89 @@ export const Box = (): JSX.Element => {
           </div>
         </div>
 
-        {/* Product grid - Mobile optimized with 2 columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-8 mt-32 md:mt-44 mb-16 relative z-20 max-w-4xl mx-auto">
+        {/* Desktop and tablet product grid */}
+        <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-44 mb-16 relative z-20 max-w-4xl mx-auto">
           {products.map((product) => (
-            <Card key={product.id} className="flex flex-col overflow-hidden border border-gray-200 rounded text-sm w-full mx-auto">
+            <Card key={`desktop-${product.id}`} className="flex flex-col overflow-hidden border border-gray-200 rounded text-sm w-full mx-auto">
               <CardContent className="p-0">
-                {/* Desktop layout (vertical) */}
-                <div className="hidden sm:block">
-                  <div className="w-full aspect-square">
-                    <img 
-                      src={product.image} 
-                      alt={`${product.name} product image`} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-              
-                  <div className="p-2">
-                    <div className="flex items-center justify-between w-full">
-                      <div className="text-gray-700 text-xs md:text-sm">
-                        {product.name}
-                      </div>
-              
-                      <div className="flex items-center gap-1">
-                        <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs">
-                          {cart[product.id] || 0}
-                        </div>
-                        <button
-                          onClick={() => updateQuantity(product.id, true)}
-                          className="w-4 h-4 md:w-5 md:h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-              
-                    <div className="font-medium text-black text-xs md:text-sm w-full mt-1">
-                      ₹ {product.price}
-                    </div>
-                  </div>
+                <div className="w-full aspect-square">
+                  <img 
+                    src={product.image} 
+                    alt={`${product.name} product image`} 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-
-                {/* Mobile layout (vertical compact cards for 2-column layout) */}
-                <div className="block sm:hidden">
-                  <div className="w-full aspect-square">
-                    <img 
-                      src={product.image} 
-                      alt={`${product.name} product image`} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  <div className="p-2">
-                    <div className="flex items-center justify-between w-full">
-                      <div className="text-gray-700 text-xs font-medium">
-                        {product.name}
+            
+                <div className="p-2">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="text-gray-700 text-xs md:text-sm">
+                      {product.name}
+                    </div>
+            
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs">
+                        {cart[product.id] || 0}
                       </div>
-                      
                       <button
                         onClick={() => updateQuantity(product.id, true)}
-                        className="w-5 h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
+                        className="w-4 h-4 md:w-5 md:h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
                       >
                         +
                       </button>
                     </div>
-                    
-                    <div className="flex justify-between items-center w-full mt-1">
-                      <div className="font-medium text-black text-xs">
-                        ₹ {product.price}
-                      </div>
-                      
-                      {cart[product.id] > 0 && (
-                        <div className="text-xs bg-gray-100 px-1 rounded">
-                          {cart[product.id]}
-                        </div>
-                      )}
-                    </div>
+                  </div>
+            
+                  <div className="font-medium text-black text-xs md:text-sm w-full mt-1">
+                    ₹ {product.price}
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Mobile product layout - separated with better spacing */}
+        <div className="block sm:hidden mt-32 mb-16 relative z-20">
+          <div className="flex flex-col items-end gap-3 pr-2">
+            {products.map((product) => (
+              <div key={`mobile-${product.id}`} className="w-3/5 overflow-hidden border border-gray-200 rounded shadow-sm">
+                <div className="w-full aspect-square">
+                  <img 
+                    src={product.image} 
+                    alt={`${product.name} product image`} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="bg-white p-1">
+                  <div className="flex items-center justify-between">
+                    <div className="text-gray-700 text-xs font-medium truncate">
+                      {product.name}
+                    </div>
+                    
+                    <button
+                      onClick={() => updateQuantity(product.id, true)}
+                      className="w-3 h-3 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
+                    >
+                      <span className="leading-none">+</span>
+                    </button>
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-1">
+                    <div className="font-medium text-black text-xs">
+                      ₹ {product.price}
+                    </div>
+                    
+                    {cart[product.id] > 0 && (
+                      <div className="text-xs bg-gray-100 px-1 rounded text-gray-700">
+                        {cart[product.id]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Checkout button */}
