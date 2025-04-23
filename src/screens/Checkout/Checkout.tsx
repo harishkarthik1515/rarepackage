@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
+import { motion } from "framer-motion";
 import { Button } from '../../components/ui/button';
 
 interface CheckoutProps {
@@ -22,32 +23,6 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
     coupon: ''
   });
   const [showSuccess, setShowSuccess] = useState(false);
-  const horizontalRef = useRef(null);
-  const verticalRef = useRef(null);
-
-  // Animation for RARE PACKAGE strips - Added the same animation as in Box component
-  useEffect(() => {
-    let horizontalPosition = 0;
-    let verticalPosition = 0;
-    
-    const animate = () => {
-      if (horizontalRef.current) {
-        horizontalPosition = (horizontalPosition + 1) % 200;
-        horizontalRef.current.style.transform = `translateX(-${horizontalPosition}px)`;
-      }
-      
-      if (verticalRef.current) {
-        verticalPosition = (verticalPosition + 1) % 200;
-        verticalRef.current.style.transform = `translateY(-${verticalPosition}px)`;
-      }
-      
-      requestAnimationFrame(animate);
-    };
-    
-    const animationFrame = requestAnimationFrame(animate);
-    
-    return () => cancelAnimationFrame(animationFrame);
-  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -91,24 +66,69 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
     console.log("Applying coupon:", formData.coupon);
   };
 
-  // Get total items function from Box component
+  // Get total items function
   const getTotalItems = () => {
     return Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   };
 
-  // Create RARE PACKAGE items - Added from Box component
-  const createRarePackageItems = (count, isVertical = false) => {
+  // Create RARE PACKAGE items for horizontal strips
+  const createHorizontalRarePackageItems = (count) => {
     return Array(count).fill(0).map((_, index) => (
       <div
         key={index}
-        className={`inline-flex items-center justify-center px-2 py-1 ${isVertical ? 'my-10' : 'mx-1'} border border-gray-300 bg-white`}
-        style={isVertical ? { transform: 'rotate(90deg)' } : {}}
+        className="inline-flex items-center justify-center px-2 py-1 mx-1 border border-gray-300 bg-white"
       >
         <div className="font-mono font-bold text-gray-700 text-xs tracking-tight whitespace-nowrap">
           RARE PACKAGE
         </div>
       </div>
     ));
+  };
+
+  // Create RARE PACKAGE items for vertical strips
+  const createVerticalRarePackageItems = (count) => {
+    return Array(count).fill(0).map((_, index) => (
+      <div
+        key={index}
+        className="flex items-center justify-center px-1 py-2 my-1 border border-gray-300 bg-white"
+      >
+        <div 
+          className="font-mono font-bold text-gray-700 text-xs tracking-tight whitespace-nowrap"
+          style={{ writingMode: "vertical-rl", textOrientation: "mixed", transform: "rotate(180deg)" }}
+        >
+          RARE PACKAGE
+        </div>
+      </div>
+    ));
+  };
+
+  // Animation variants - matching Box component
+  const horizontalStripVariants = {
+    animate: {
+      x: [0, -200],
+      transition: {
+        x: {
+          repeat: Infinity,
+          repeatType: "loop",
+          duration: 5,
+          ease: "linear"
+        }
+      }
+    }
+  };
+
+  const verticalStripVariants = {
+    animate: {
+      y: [0, -200],
+      transition: {
+        y: {
+          repeat: Infinity,
+          repeatType: "loop",
+          duration: 5,
+          ease: "linear"
+        }
+      }
+    }
   };
 
   if (showSuccess) {
@@ -132,34 +152,69 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
   return (
     <main className="relative w-full min-h-screen bg-white overflow-hidden">
       <div className="container mx-auto px-4 py-8 relative">
-        {/* Background pattern elements - Updated to match Box component */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {/* Horizontal RARE PACKAGE strip */}
-          <div className="absolute w-full overflow-hidden h-12 top-32 left-0 z-0">
-            <div 
-              ref={horizontalRef}
+        {/* DESKTOP ANIMATIONS */}
+        <div className="hidden md:block">
+          {/* Desktop horizontal strip */}
+          <div className="fixed w-full h-24 top-20 left-0 z-10 overflow-hidden" 
+               style={{ transform: "rotate(-3deg)", transformOrigin: "center center" }}>
+            <motion.div 
               className="flex flex-row flex-nowrap whitespace-nowrap py-2"
               style={{ width: "400%" }}
+              variants={horizontalStripVariants}
+              animate="animate"
             >
-              {createRarePackageItems(40)}
-              {createRarePackageItems(40)} {/* Duplicate for seamless scrolling */}
-            </div>
+              {createHorizontalRarePackageItems(40)}
+              {createHorizontalRarePackageItems(40)}
+            </motion.div>
           </div>
 
-          {/* Vertical RARE PACKAGE strip */}
-          <div className="absolute h-full overflow-hidden w-16 top-0 right-12 z-50">
-            <div 
-              ref={verticalRef}
-              className="flex flex-col items-center py-2"
+          {/* Desktop vertical strip */}
+          <div className="fixed h-screen w-16 top-0 left-[90%] z-10 overflow-hidden"
+               style={{ transform: "rotate(-6deg)", transformOrigin: "top right" }}>
+            <motion.div 
+              className="flex flex-col items-center"
               style={{ height: "200%" }}
+              variants={verticalStripVariants}
+              animate="animate"
             >
-              {createRarePackageItems(10, true)}
-              {createRarePackageItems(10, true)} {/* Duplicate for seamless scrolling */}
-            </div>
+              {createVerticalRarePackageItems(25)}
+              {createVerticalRarePackageItems(25)}
+            </motion.div>
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto mt-8 relative z-10">
+        {/* MOBILE ANIMATIONS */}
+        <div className="md:hidden">
+          {/* Mobile horizontal strip */}
+          <div className="fixed w-full h-20 top-[6%] left-0 z-10 overflow-hidden" 
+               style={{ transform: "rotate(5deg)", transformOrigin: "center center" }}>
+            <motion.div 
+              className="flex flex-row flex-nowrap whitespace-nowrap py-2"
+              style={{ width: "400%" }}
+              variants={horizontalStripVariants}
+              animate="animate"
+            >
+              {createHorizontalRarePackageItems(40)}
+              {createHorizontalRarePackageItems(40)}
+            </motion.div>
+          </div>
+
+          {/* Mobile vertical strip */}
+          <div className="fixed h-screen w-12 top-0 left-[15%] z-10 overflow-hidden"
+               style={{ transform: "rotate(11deg)", transformOrigin: "top left" }}>
+            <motion.div 
+              className="flex flex-col items-center"
+              style={{ height: "200%" }}
+              variants={verticalStripVariants}
+              animate="animate"
+            >
+              {createVerticalRarePackageItems(25)}
+              {createVerticalRarePackageItems(25)}
+            </motion.div>
+          </div>
+        </div>
+
+        <div className="max-w-3xl mx-auto mt-8 relative z-20">
           <button
             onClick={onBack}
             className="mb-6 text-gray-600 hover:text-gray-800 flex items-center gap-2"
@@ -169,7 +224,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           
           <h1 className="text-2xl font-medium mb-8 text-left">Checkout</h1>
 
-          {/* Order Summary from Box component - Now above coupon code */}
+          {/* Order Summary */}
           <div className="bg-gray-50 p-6 rounded-lg mb-8">
             <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
             <div className="space-y-4">
@@ -180,7 +235,6 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
                 return (
                   <div key={product.id} className="flex justify-between items-center py-2">
                     <div className="flex items-center gap-3">
-                      {/* Fixed the image display by using the actual product image path */}
                       <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
                         <img 
                           src={product.image} 
@@ -207,7 +261,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           </div>
 
           <div className="mb-8">
-            {/* Coupon Section - Now below order summary */}
+            {/* Coupon Section */}
             <div className="flex gap-2 mb-8">
               <input
                 type="text"
@@ -228,7 +282,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <input
                 type="text"
                 name="name"
