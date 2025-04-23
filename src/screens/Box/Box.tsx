@@ -10,7 +10,7 @@ export const Box = (): JSX.Element => {
   const [showCheckout, setShowCheckout] = useState(false);
   const [cart, setCart] = useState<{ [key: string]: number }>({});
 
-  // Product data with original Unsplash images
+  // Product data with placeholder images instead of Unsplash URLs
   const products = [
     { id: '1', name: "CHAIN", price: 369, image: "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" },
     { id: '2', name: "RING", price: 369, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" },
@@ -112,8 +112,8 @@ export const Box = (): JSX.Element => {
   };
 
   return (
-    <main className="relative flex flex-col w-full min-h-screen bg-white overflow-hidden">
-      <div className="container mx-auto px-2 sm:px-4 py-8 flex-grow">
+    <main className="relative flex flex-col w-full h-screen bg-white overflow-hidden">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 flex-grow flex flex-col">
         {/* DESKTOP ANIMATIONS */}
         <div className="hidden md:block">
           {/* Desktop horizontal strip */}
@@ -146,38 +146,38 @@ export const Box = (): JSX.Element => {
         </div>
 
         {/* MOBILE ANIMATIONS */}
-        <div className="md:hidden">
-          {/* Mobile horizontal strip */}
-          <div className="fixed w-full h-20 top-[6%] left-0 z-10 overflow-hidden" 
-               style={{ transform: "rotate(5deg)", transformOrigin: "center center" }}>
-            <motion.div 
-              className="flex flex-row flex-nowrap whitespace-nowrap py-2"
-              style={{ width: "400%" }}
-              variants={horizontalStripVariants}
-              animate="animate"
-            >
-              {createHorizontalRarePackageItems(40)}
-              {createHorizontalRarePackageItems(40)}
-            </motion.div>
-          </div>
-
-          {/* Mobile vertical strip */}
-          <div className="fixed h-screen w-12 top-0 left-[15%] z-10 overflow-hidden"
-               style={{ transform: "rotate(11deg)", transformOrigin: "top left" }}>
-            <motion.div 
-              className="flex flex-col items-center"
-              style={{ height: "200%" }}
-              variants={verticalStripVariants}
-              animate="animate"
-            >
-              {createVerticalRarePackageItems(25)}
-              {createVerticalRarePackageItems(25)}
-            </motion.div>
-          </div>
-        </div>
+                <div className="md:hidden">
+                  {/* Mobile horizontal strip */}
+                  <div className="fixed w-full h-20 top-[6%] left-0 z-10 overflow-hidden" 
+                       style={{ transform: "rotate(5deg)", transformOrigin: "center center" }}>
+                    <motion.div 
+                      className="flex flex-row flex-nowrap whitespace-nowrap py-2"
+                      style={{ width: "400%" }}
+                      variants={horizontalStripVariants}
+                      animate="animate"
+                    >
+                      {createHorizontalRarePackageItems(40)}
+                      {createHorizontalRarePackageItems(40)}
+                    </motion.div>
+                  </div>
+        
+                  {/* Mobile vertical strip */}
+                  <div className="fixed h-screen w-12 top-0 left-[15%] z-10 overflow-hidden"
+                       style={{ transform: "rotate(11deg)", transformOrigin: "top left" }}>
+                    <motion.div 
+                      className="flex flex-col items-center"
+                      style={{ height: "200%" }}
+                      variants={verticalStripVariants}
+                      animate="animate"
+                    >
+                      {createVerticalRarePackageItems(25)}
+                      {createVerticalRarePackageItems(25)}
+                    </motion.div>
+                  </div>
+                </div>
 
         {/* Desktop and tablet product grid */}
-        <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-44 mb-16 relative z-20 max-w-4xl mx-auto">
+        <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-44 mb-8 relative z-20 max-w-4xl mx-auto">
           {products.map((product) => (
             <Card key={`desktop-${product.id}`} className="flex flex-col overflow-hidden border border-gray-200 rounded text-sm w-full mx-auto">
               <CardContent className="p-0">
@@ -217,70 +217,80 @@ export const Box = (): JSX.Element => {
           ))}
         </div>
 
-        {/* Mobile product layout - separated with better spacing */}
-        <div className="block sm:hidden mt-32 mb-16 relative z-20">
-          <div className="flex flex-col items-end gap-3 pr-2">
+        {/* IMPROVED MOBILE PRODUCT LAYOUT - Full width cards */}
+        <div className="block sm:hidden mt-40 mb-5 relative z-20 flex-grow">
+          <div className="flex flex-col gap-10 items-center">
             {products.map((product) => (
-              <div key={`mobile-${product.id}`} className="w-3/5 overflow-hidden border border-gray-200 rounded shadow-sm">
-                <div className="w-full aspect-square">
-                  <img 
-                    src={product.image} 
-                    alt={`${product.name} product image`} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                <div className="bg-white p-1">
-                  <div className="flex items-center justify-between">
-                    <div className="text-gray-700 text-xs font-medium truncate">
-                      {product.name}
+              <Card key={`mobile-${product.id}`} className="w-11/12 h-full overflow-hidden border border-gray-200 rounded shadow-sm">
+                <CardContent className="p-3">
+                  <div className="flex flex-row">
+                    {/* Product image */}
+                    <div className="w-1/3 mr-3">
+                      <img 
+                        src={product.image} 
+                        alt={`${product.name} product image`} 
+                        className="w-full aspect-square object-cover rounded"
+                      />
                     </div>
                     
-                    <button
-                      onClick={() => updateQuantity(product.id, true)}
-                      className="w-3 h-3 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
-                    >
-                      <span className="leading-none">+</span>
-                    </button>
-                  </div>
-                  
-                  <div className="flex justify-between items-center mt-1">
-                    <div className="font-medium text-black text-xs">
-                      ₹ {product.price}
-                    </div>
-                    
-                    {cart[product.id] > 0 && (
-                      <div className="text-xs bg-gray-100 px-1 rounded text-gray-700">
-                        {cart[product.id]}
+                    {/* Product details */}
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="text-gray-800 font-medium mb-1">
+                          {product.name}
+                        </div>
+                        <div className="text-black font-bold">
+                          ₹ {product.price}
+                        </div>
                       </div>
-                    )}
+                      
+                      {/* Quantity controls */}
+                      <div className="flex items-center gap-1 mt-2">
+                        <button
+                          onClick={() => updateQuantity(product.id, false)}
+                          disabled={!cart[product.id]}
+                          className={`w-8 h-8 flex items-center justify-center text-sm ${cart[product.id] ? 'bg-gray-100 border border-gray-300' : 'bg-gray-50 border border-gray-200 text-gray-300'}`}
+                        >
+                          -
+                        </button>
+                        <div className="w-10 h-8 bg-gray-100 border border-gray-300 flex items-center justify-center text-sm">
+                          {cart[product.id] || 0}
+                        </div>
+                        <button
+                          onClick={() => updateQuantity(product.id, true)}
+                          className="w-8 h-8 bg-gray-100 border border-gray-300 flex items-center justify-center text-sm"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
 
-        {/* Checkout button */}
-        <div className="flex justify-center my-6 md:my-8 relative z-20">
+        {/* Checkout button - made slightly larger for mobile */}
+        <div className="sticky bottom-16 sm:bottom-4 flex justify-center mb-2 relative z-20 mt-auto">
           <Button 
             onClick={() => setShowCheckout(true)}
-            className="bg-white text-black rounded px-4 md:px-6 py-2 flex items-center gap-2 border border-gray-200 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+            className="bg-white text-black rounded px-6 py-3 sm:px-4 sm:py-2 flex items-center gap-2 border border-gray-200 hover:bg-gray-200 active:bg-gray-300 transition-colors shadow-md"
             disabled={getTotalItems() === 0}
           >
-            <span className="font-normal text-xs md:text-sm">
+            <span className="font-medium text-sm sm:text-xs">
               Checkout {getTotalItems() > 0 && `(${getTotalItems()})`}
             </span>
-            <ShoppingCartIcon className="w-3 h-3 md:w-4 md:h-4" />
+            <ShoppingCartIcon className="w-4 h-4 sm:w-3 sm:h-3" />
           </Button>
         </div>
       </div>
 
       {/* Footer - Fixed at bottom */}
-      <footer className="relative z-20 bg-white py-4 border-t border-gray-300 w-full mt-auto">
+      <footer className="relative z-20 bg-white py-2 border-t border-gray-300 w-full">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex flex-wrap gap-3 md:gap-6 justify-center md:justify-start">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-2">
+            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
               {footerLinks.map((link, index) => (
                 <a
                   key={index}
@@ -291,7 +301,7 @@ export const Box = (): JSX.Element => {
                 </a>
               ))}
             </div>
-            <div className="font-normal text-black text-xs text-center md:text-right mt-2 md:mt-0">
+            <div className="font-normal text-black text-xs text-center md:text-right">
               rarepackage regd. trademark
             </div>
           </div>
