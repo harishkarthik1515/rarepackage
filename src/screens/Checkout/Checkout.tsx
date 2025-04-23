@@ -59,8 +59,8 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
 
   const handlePayment = async () => {
     const options = {
-      key: 'rzp_test_jGfRdmlCNRkARB', // Replace with your Razorpay Key ID
-      amount: totalAmount * 100, // Amount in paise
+      key: 'rzp_test_jGfRdmlCNRkARB', 
+      amount: totalAmount * 100, 
       currency: 'INR',
       name: 'Rare Package',
       description: 'Purchase from Rare Package',

@@ -1,5 +1,6 @@
 import { ShoppingCartIcon } from "lucide-react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Separator } from "../../components/ui/separator";
@@ -8,8 +9,6 @@ import { Checkout } from "../Checkout/Checkout";
 export const Box = (): JSX.Element => {
   const [showCheckout, setShowCheckout] = useState(false);
   const [cart, setCart] = useState<{ [key: string]: number }>({});
-  const horizontalRef = useRef(null);
-  const verticalRef = useRef(null);
 
   // Product data with original Unsplash images
   const products = [
@@ -25,30 +24,6 @@ export const Box = (): JSX.Element => {
     { name: "Return Policy", href: "#" },
     { name: "Testimonials", href: "#" },
   ];
-
-  // Animation for RARE PACKAGE strips
-  useEffect(() => {
-    let horizontalPosition = 0;
-    let verticalPosition = 0;
-    
-    const animate = () => {
-      if (horizontalRef.current) {
-        horizontalPosition = (horizontalPosition + 1) % 200;
-        horizontalRef.current.style.transform = `translateX(-${horizontalPosition}px)`;
-      }
-      
-      if (verticalRef.current) {
-        verticalPosition = (verticalPosition + 1) % 200;
-        verticalRef.current.style.transform = `translateY(-${verticalPosition}px)`;
-      }
-      
-      requestAnimationFrame(animate);
-    };
-    
-    const animationFrame = requestAnimationFrame(animate);
-    
-    return () => cancelAnimationFrame(animationFrame);
-  }, []);
 
   const updateQuantity = (productId: string, increment: boolean) => {
     setCart(prev => ({
@@ -76,13 +51,12 @@ export const Box = (): JSX.Element => {
     />;
   }
 
-  // Create RARE PACKAGE items
-  const createRarePackageItems = (count, isVertical = false) => {
+  // Create RARE PACKAGE items for horizontal strips
+  const createHorizontalRarePackageItems = (count) => {
     return Array(count).fill(0).map((_, index) => (
       <div
         key={index}
-        className={`inline-flex items-center justify-center px-2 py-1 ${isVertical ? 'my-10' : 'mx-1'} border border-gray-300 bg-white`}
-        style={isVertical ? { transform: 'rotate(90deg)' } : {}}
+        className="inline-flex items-center justify-center px-2 py-1 mx-1 border border-gray-300 bg-white"
       >
         <div className="font-mono font-bold text-gray-700 text-xs tracking-tight whitespace-nowrap">
           RARE PACKAGE
@@ -91,112 +65,235 @@ export const Box = (): JSX.Element => {
     ));
   };
 
+  // Create RARE PACKAGE items for vertical strips with reduced gap
+  const createVerticalRarePackageItems = (count) => {
+    return Array(count).fill(0).map((_, index) => (
+      <div
+        key={index}
+        className="flex items-center justify-center px-1 py-2 my-1 border border-gray-300 bg-white"
+      >
+        <div 
+          className="font-mono font-bold text-gray-700 text-xs tracking-tight whitespace-nowrap"
+          style={{ writingMode: "vertical-rl", textOrientation: "mixed", transform: "rotate(180deg)" }}
+        >
+          RARE PACKAGE
+        </div>
+      </div>
+    ));
+  };
+
+  // Animation variants
+  const horizontalStripVariants = {
+    animate: {
+      x: [0, -200],
+      transition: {
+        x: {
+          repeat: Infinity,
+          repeatType: "loop",
+          duration: 5,
+          ease: "linear"
+        }
+      }
+    }
+  };
+
+  const verticalStripVariants = {
+    animate: {
+      y: [0, -200],
+      transition: {
+        y: {
+          repeat: Infinity,
+          repeatType: "loop",
+          duration: 5,
+          ease: "linear"
+        }
+      }
+    }
+  };
+
   return (
-    <main className="relative w-full min-h-screen bg-white overflow-hidden">
-      <div className="container mx-auto px-4 py-8 relative">
-        {/* Background pattern elements - Responsive adjustments */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {/* Horizontal RARE PACKAGE strip - Responsive positioning */}
-          <div className="absolute w-full overflow-hidden h-12 top-24 md:top-32 left-0 z-0">
-            <div 
-              ref={horizontalRef}
+    <main className="relative flex flex-col w-full min-h-screen bg-white overflow-hidden">
+      <div className="container mx-auto px-2 sm:px-4 py-8 flex-grow">
+        {/* DESKTOP ANIMATIONS */}
+        <div className="hidden md:block">
+          {/* Desktop horizontal strip */}
+          <div className="fixed w-full h-24 top-20 left-0 z-10 overflow-hidden" 
+               style={{ transform: "rotate(-3deg)", transformOrigin: "center center" }}>
+            <motion.div 
               className="flex flex-row flex-nowrap whitespace-nowrap py-2"
               style={{ width: "400%" }}
+              variants={horizontalStripVariants}
+              animate="animate"
             >
-              {createRarePackageItems(40)}
-              {createRarePackageItems(40)}
-            </div>
+              {createHorizontalRarePackageItems(40)}
+              {createHorizontalRarePackageItems(40)}
+            </motion.div>
           </div>
 
-          {/* Vertical RARE PACKAGE strip - Hidden on mobile, visible on larger screens */}
-          <div className="absolute h-full overflow-hidden w-16 top-0 right-0 md:right-12 z-10 hidden md:block">
-            <div 
-              ref={verticalRef}
-              className="flex flex-col items-center py-2"
+          {/* Desktop vertical strip */}
+          <div className="fixed h-screen w-16 top-0 left-[90%] z-10 overflow-hidden"
+               style={{ transform: "rotate(-6deg)", transformOrigin: "top right" }}>
+            <motion.div 
+              className="flex flex-col items-center"
               style={{ height: "200%" }}
+              variants={verticalStripVariants}
+              animate="animate"
             >
-              {createRarePackageItems(10, true)}
-              {createRarePackageItems(10, true)}
-            </div>
+              {createVerticalRarePackageItems(25)}
+              {createVerticalRarePackageItems(25)}
+            </motion.div>
           </div>
         </div>
 
-        {/* Product grid - Responsive grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-32 md:mt-48 mb-16 relative z-10 max-w-6xl mx-auto">
+        {/* MOBILE ANIMATIONS */}
+        <div className="md:hidden">
+          {/* Mobile horizontal strip */}
+          <div className="fixed w-full h-20 top-[6%] left-0 z-10 overflow-hidden" 
+               style={{ transform: "rotate(5deg)", transformOrigin: "center center" }}>
+            <motion.div 
+              className="flex flex-row flex-nowrap whitespace-nowrap py-2"
+              style={{ width: "400%" }}
+              variants={horizontalStripVariants}
+              animate="animate"
+            >
+              {createHorizontalRarePackageItems(40)}
+              {createHorizontalRarePackageItems(40)}
+            </motion.div>
+          </div>
+
+          {/* Mobile vertical strip */}
+          <div className="fixed h-screen w-12 top-0 left-[15%] z-10 overflow-hidden"
+               style={{ transform: "rotate(11deg)", transformOrigin: "top left" }}>
+            <motion.div 
+              className="flex flex-col items-center"
+              style={{ height: "200%" }}
+              variants={verticalStripVariants}
+              animate="animate"
+            >
+              {createVerticalRarePackageItems(25)}
+              {createVerticalRarePackageItems(25)}
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Product grid - Mobile optimized with 2 columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-8 mt-32 md:mt-44 mb-16 relative z-20 max-w-4xl mx-auto">
           {products.map((product) => (
-            <Card key={product.id} className="flex flex-col overflow-hidden border border-gray-200 rounded text-sm">
-            <CardContent className="p-0">
-              <div className="w-full aspect-square">
-                <img 
-                  src={product.image} 
-                  alt={`${product.name} product image`} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-          
-              <div className="p-2"> {/* Reduced padding */}
-                <div className="flex items-center justify-between w-full">
-                  <div className="text-gray-700 text-sm"> {/* Smaller font */}
-                    {product.name}
+            <Card key={product.id} className="flex flex-col overflow-hidden border border-gray-200 rounded text-sm w-full mx-auto">
+              <CardContent className="p-0">
+                {/* Desktop layout (vertical) */}
+                <div className="hidden sm:block">
+                  <div className="w-full aspect-square">
+                    <img 
+                      src={product.image} 
+                      alt={`${product.name} product image`} 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-          
-                  <div className="flex items-center gap-1">
-                    <div className="w-5 h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs">
-                      {cart[product.id] || 0}
+              
+                  <div className="p-2">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="text-gray-700 text-xs md:text-sm">
+                        {product.name}
+                      </div>
+              
+                      <div className="flex items-center gap-1">
+                        <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs">
+                          {cart[product.id] || 0}
+                        </div>
+                        <button
+                          onClick={() => updateQuantity(product.id, true)}
+                          className="w-4 h-4 md:w-5 md:h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => updateQuantity(product.id, true)}
-                      className="w-5 h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
-                    >
-                      +
-                    </button>
+              
+                    <div className="font-medium text-black text-xs md:text-sm w-full mt-1">
+                      ₹ {product.price}
+                    </div>
                   </div>
                 </div>
-          
-                <div className="font-medium text-black text-sm w-full mt-1">
-                  ₹ {product.price}
+
+                {/* Mobile layout (vertical compact cards for 2-column layout) */}
+                <div className="block sm:hidden">
+                  <div className="w-full aspect-square">
+                    <img 
+                      src={product.image} 
+                      alt={`${product.name} product image`} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  <div className="p-2">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="text-gray-700 text-xs font-medium">
+                        {product.name}
+                      </div>
+                      
+                      <button
+                        onClick={() => updateQuantity(product.id, true)}
+                        className="w-5 h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
+                      >
+                        +
+                      </button>
+                    </div>
+                    
+                    <div className="flex justify-between items-center w-full mt-1">
+                      <div className="font-medium text-black text-xs">
+                        ₹ {product.price}
+                      </div>
+                      
+                      {cart[product.id] > 0 && (
+                        <div className="text-xs bg-gray-100 px-1 rounded">
+                          {cart[product.id]}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          
+              </CardContent>
+            </Card>
           ))}
         </div>
 
         {/* Checkout button */}
-        <div className="flex justify-center my-8 relative z-10">
+        <div className="flex justify-center my-6 md:my-8 relative z-20">
           <Button 
             onClick={() => setShowCheckout(true)}
-            className="bg-neutral-900 text-white rounded px-6 py-2 flex items-center gap-2"
+            className="bg-white text-black rounded px-4 md:px-6 py-2 flex items-center gap-2 border border-gray-200 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+            disabled={getTotalItems() === 0}
           >
-            <span className="font-normal text-sm">
-              Checkout
+            <span className="font-normal text-xs md:text-sm">
+              Checkout {getTotalItems() > 0 && `(${getTotalItems()})`}
             </span>
-            <ShoppingCartIcon className="w-4 h-4" />
+            <ShoppingCartIcon className="w-3 h-3 md:w-4 md:h-4" />
           </Button>
         </div>
+      </div>
 
-        {/* Footer - Responsive layout */}
-        <footer className="mt-20 relative z-10 bg-white pt-6">
-          <Separator className="mb-4 bg-gray-300" />
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-4">
-            <div className="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-start">
+      {/* Footer - Fixed at bottom */}
+      <footer className="relative z-20 bg-white py-4 border-t border-gray-300 w-full mt-auto">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-wrap gap-3 md:gap-6 justify-center md:justify-start">
               {footerLinks.map((link, index) => (
                 <a
                   key={index}
                   href={link.href}
-                  className="font-normal text-black text-xs"
+                  className="font-normal text-black text-xs hover:underline"
                 >
                   {link.name}
                 </a>
               ))}
             </div>
-            <div className="font-normal text-black text-xs text-center md:text-right mt-4 md:mt-0">
+            <div className="font-normal text-black text-xs text-center md:text-right mt-2 md:mt-0">
               rarepackage regd. trademark
             </div>
           </div>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </main>
   );
 };
