@@ -19,6 +19,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    email: '',
     address: '',
     coupon: ''
   });
@@ -32,20 +33,40 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
     }));
   };
 
+  // Format order details for Razorpay
+  const getOrderDetails = () => {
+    const orderItems = products
+      .filter(product => cart[product.id] > 0)
+      .map(product => `${product.name} x ${cart[product.id]} - ₹${product.price * cart[product.id]}`)
+      .join(', ');
+    
+    return orderItems;
+  };
+
   const handlePayment = async () => {
+    // Prepare order details for Razorpay
+    const orderDetails = getOrderDetails();
+    
     const options = {
       key: 'rzp_test_jGfRdmlCNRkARB', 
       amount: totalAmount * 100, 
       currency: 'INR',
       name: 'Rare Package',
       description: 'Purchase from Rare Package',
+      order_id: '', // This would come from your backend
       handler: function(response: any) {
         setShowSuccess(true);
         console.log('Payment successful:', response);
       },
       prefill: {
         name: formData.name,
+        email: formData.email,
         contact: formData.phone,
+      },
+      notes: {
+        address: formData.address,
+        order_details: orderDetails,
+        total_items: Object.values(cart).reduce((sum, qty) => sum + qty, 0),
       },
       theme: {
         color: '#000000'
@@ -140,7 +161,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           <p className="text-gray-600 mb-8">Thank you for your purchase.</p>
           <Button
             onClick={onBack}
-            className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800"
+            className="bg-black text-white px-6 py-3 rounded hover:bg-gray-800"
           >
             Continue Shopping
           </Button>
@@ -169,7 +190,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           </div>
 
           {/* Desktop vertical strip */}
-          <div className="fixed h-screen w-16 top-0 left-[90%] z-10 overflow-hidden"
+          <div className="fixed h-screen w-16 top-0 right-8 z-10 overflow-hidden"
                style={{ transform: "rotate(-6deg)", transformOrigin: "top right" }}>
             <motion.div 
               className="flex flex-col items-center"
@@ -183,10 +204,10 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           </div>
         </div>
 
-        {/* MOBILE ANIMATIONS */}
+        {/* MOBILE ANIMATIONS - Optimized for consistent display across devices */}
         <div className="md:hidden">
           {/* Mobile horizontal strip */}
-          <div className="fixed w-full h-20 top-[6%] left-0 z-10 overflow-hidden" 
+          <div className="fixed w-full h-16 top-16 left-0 z-10 overflow-hidden" 
                style={{ transform: "rotate(5deg)", transformOrigin: "center center" }}>
             <motion.div 
               className="flex flex-row flex-nowrap whitespace-nowrap py-2"
@@ -200,7 +221,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           </div>
 
           {/* Mobile vertical strip */}
-          <div className="fixed h-screen w-12 top-0 left-[15%] z-10 overflow-hidden"
+          <div className="fixed h-screen w-12 top-0 left-8 z-10 overflow-hidden"
                style={{ transform: "rotate(11deg)", transformOrigin: "top left" }}>
             <motion.div 
               className="flex flex-col items-center"
@@ -214,7 +235,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto mt-8 relative z-20">
+        <div className="max-w-3xl mx-auto mt-12 sm:mt-16 relative z-20">
           <button
             onClick={onBack}
             className="mb-6 text-gray-600 hover:text-gray-800 flex items-center gap-2"
@@ -224,16 +245,16 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           
           <h1 className="text-2xl font-medium mb-8 text-left">Checkout</h1>
 
-          {/* Order Summary */}
-          <div className="bg-gray-50 p-6 rounded-lg mb-8">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+          {/* Order Summary - Responsive for all devices */}
+          <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-8 shadow-sm">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Order Summary</h2>
             <div className="space-y-4">
               {products.map(product => {
                 const quantity = cart[product.id] || 0;
                 if (quantity === 0) return null;
 
                 return (
-                  <div key={product.id} className="flex justify-between items-center py-2">
+                  <div key={product.id} className="flex justify-between items-center py-2 border-b border-gray-100">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
                         <img 
@@ -261,63 +282,89 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
           </div>
 
           <div className="mb-8">
-            {/* Coupon Section */}
-            <div className="flex gap-2 mb-8">
+            {/* Coupon Section - Improved mobile responsiveness */}
+            <div className="flex flex-col sm:flex-row gap-2 mb-8">
               <input
                 type="text"
                 name="coupon"
                 value={formData.coupon}
                 onChange={handleInputChange}
                 placeholder="Coupon code"
-                className="flex-1 px-4 py-2 border rounded focus:outline-none text-sm"
+                className="flex-1 px-4 py-3 border rounded focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
               <Button
                 onClick={handleApplyCoupon}
-                className="bg-white border border-green-500 text-green-500 rounded px-4 text-sm"
+                className="bg-white border border-green-500 text-green-500 rounded px-4 py-3 hover:bg-green-50"
               >
                 Apply
               </Button>
             </div>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Name"
-                required
-                className="w-full px-0 py-2 border-b border-gray-300 focus:outline-none"
-              />
+          {/* Form - Improved input field spacing and responsiveness */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <label htmlFor="name" className="text-sm text-gray-500">Name</label>
+                <input
+                  id="name"
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter your full name"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-400"
+                />
+              </div>
               
+              <div className="space-y-1">
+                <label htmlFor="phone" className="text-sm text-gray-500">Phone Number</label>
+                <input
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="Enter your phone number"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-400"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label htmlFor="email" className="text-sm text-gray-500">Email</label>
               <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
+                id="email"
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
-                placeholder="Phone No"
+                placeholder="Enter your email address"
                 required
-                className="w-full px-0 py-2 border-b border-gray-300 focus:outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
             </div>
 
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-              placeholder="Address"
-              required
-              className="w-full px-0 py-2 border-b border-gray-300 focus:outline-none mb-8"
-            />
+            <div className="space-y-1">
+              <label htmlFor="address" className="text-sm text-gray-500">Shipping Address</label>
+              <textarea
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                placeholder="Enter your complete shipping address"
+                required
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-400"
+              />
+            </div>
 
             <div className="flex justify-center mt-8">
               <Button
                 type="submit"
-                className="bg-black text-white py-2 px-8 rounded flex items-center gap-2"
+                className="bg-black text-white py-3 px-8 rounded flex items-center gap-2 hover:bg-gray-800 transition-colors w-full sm:w-auto"
               >
                 Proceed To Payment →
               </Button>

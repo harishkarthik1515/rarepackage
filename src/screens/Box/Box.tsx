@@ -3,14 +3,13 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { Separator } from "../../components/ui/separator";
-import { Checkout } from "../Checkout/Checkout";
+import { Checkout } from "../Checkout/Checkout"; // Import the external Checkout component
 
 export const Box = (): JSX.Element => {
   const [showCheckout, setShowCheckout] = useState(false);
   const [cart, setCart] = useState<{ [key: string]: number }>({});
 
-  // Product data with placeholder images instead of Unsplash URLs
+  // Product data with placeholder images
   const products = [
     { id: '1', name: "CHAIN", price: 369, image: "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" },
     { id: '2', name: "RING", price: 369, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" },
@@ -42,6 +41,7 @@ export const Box = (): JSX.Element => {
     }, 0);
   };
 
+  // Use the imported Checkout component instead of the internal one
   if (showCheckout) {
     return <Checkout 
       cart={cart} 
@@ -65,7 +65,7 @@ export const Box = (): JSX.Element => {
     ));
   };
 
-  // Create RARE PACKAGE items for vertical strips with reduced gap
+  // Create RARE PACKAGE items for vertical strips
   const createVerticalRarePackageItems = (count) => {
     return Array(count).fill(0).map((_, index) => (
       <div
@@ -112,11 +112,11 @@ export const Box = (): JSX.Element => {
   };
 
   return (
-    <main className="relative flex flex-col w-full h-screen bg-white overflow-hidden">
-      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 flex-grow flex flex-col">
-        {/* DESKTOP ANIMATIONS */}
-        <div className="hidden md:block">
-          {/* Desktop horizontal strip */}
+    <main className="relative flex flex-col w-full min-h-screen bg-white overflow-hidden">
+      <div className="container mx-auto px-4 py-4 flex-grow flex flex-col">
+        {/* ANIMATIONS FOR ALL SCREEN SIZES */}
+        <div className="hidden sm:block">
+          {/* Horizontal strip for tablet and desktop */}
           <div className="fixed w-full h-24 top-20 left-0 z-10 overflow-hidden" 
                style={{ transform: "rotate(-3deg)", transformOrigin: "center center" }}>
             <motion.div 
@@ -130,8 +130,8 @@ export const Box = (): JSX.Element => {
             </motion.div>
           </div>
 
-          {/* Desktop vertical strip */}
-          <div className="fixed h-screen w-16 top-0 left-[90%] z-10 overflow-hidden"
+          {/* Vertical strip for tablet and desktop */}
+          <div className="fixed h-screen w-16 top-0 right-8 z-10 overflow-hidden"
                style={{ transform: "rotate(-6deg)", transformOrigin: "top right" }}>
             <motion.div 
               className="flex flex-col items-center"
@@ -145,41 +145,41 @@ export const Box = (): JSX.Element => {
           </div>
         </div>
 
-        {/* MOBILE ANIMATIONS */}
-                <div className="md:hidden">
-                  {/* Mobile horizontal strip */}
-                  <div className="fixed w-full h-20 top-[6%] left-0 z-10 overflow-hidden" 
-                       style={{ transform: "rotate(5deg)", transformOrigin: "center center" }}>
-                    <motion.div 
-                      className="flex flex-row flex-nowrap whitespace-nowrap py-2"
-                      style={{ width: "400%" }}
-                      variants={horizontalStripVariants}
-                      animate="animate"
-                    >
-                      {createHorizontalRarePackageItems(40)}
-                      {createHorizontalRarePackageItems(40)}
-                    </motion.div>
-                  </div>
-        
-                  {/* Mobile vertical strip */}
-                  <div className="fixed h-screen w-12 top-0 left-[15%] z-10 overflow-hidden"
-                       style={{ transform: "rotate(11deg)", transformOrigin: "top left" }}>
-                    <motion.div 
-                      className="flex flex-col items-center"
-                      style={{ height: "200%" }}
-                      variants={verticalStripVariants}
-                      animate="animate"
-                    >
-                      {createVerticalRarePackageItems(25)}
-                      {createVerticalRarePackageItems(25)}
-                    </motion.div>
-                  </div>
-                </div>
+        {/* Mobile animations - optimized for consistent display */}
+        <div className="sm:hidden">
+          {/* Mobile horizontal strip */}
+          <div className="fixed w-full h-16 top-16 left-0 z-10 overflow-hidden" 
+               style={{ transform: "rotate(5deg)", transformOrigin: "center center" }}>
+            <motion.div 
+              className="flex flex-row flex-nowrap whitespace-nowrap py-2"
+              style={{ width: "400%" }}
+              variants={horizontalStripVariants}
+              animate="animate"
+            >
+              {createHorizontalRarePackageItems(40)}
+              {createHorizontalRarePackageItems(40)}
+            </motion.div>
+          </div>
 
-        {/* Desktop and tablet product grid */}
-        <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-44 mb-8 relative z-20 max-w-4xl mx-auto">
+          {/* Mobile vertical strip */}
+          <div className="fixed h-screen w-12 top-0 left-8 z-10 overflow-hidden"
+               style={{ transform: "rotate(11deg)", transformOrigin: "top left" }}>
+            <motion.div 
+              className="flex flex-col items-center"
+              style={{ height: "200%" }}
+              variants={verticalStripVariants}
+              animate="animate"
+            >
+              {createVerticalRarePackageItems(25)}
+              {createVerticalRarePackageItems(25)}
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Tablet and desktop product grid - consistent spacing */}
+        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-36 mb-8 relative z-20 max-w-5xl mx-auto">
           {products.map((product) => (
-            <Card key={`desktop-${product.id}`} className="flex flex-col overflow-hidden border border-gray-200 rounded text-sm w-full mx-auto">
+            <Card key={`desktop-${product.id}`} className="flex flex-col overflow-hidden border border-gray-200 rounded shadow-sm">
               <CardContent className="p-0">
                 <div className="w-full aspect-square">
                   <img 
@@ -189,26 +189,35 @@ export const Box = (): JSX.Element => {
                   />
                 </div>
             
-                <div className="p-2">
+                <div className="p-4">
                   <div className="flex items-center justify-between w-full">
-                    <div className="text-gray-700 text-xs md:text-sm">
+                    <div className="text-gray-700 font-medium">
                       {product.name}
                     </div>
             
                     <div className="flex items-center gap-1">
-                      <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs">
+                      <button
+                        onClick={() => updateQuantity(product.id, false)}
+                        disabled={!cart[product.id]}
+                        className={`w-6 h-6 flex items-center justify-center text-sm ${
+                          cart[product.id] ? 'bg-gray-100 border border-gray-300' : 'bg-gray-50 border border-gray-200 text-gray-300'
+                        }`}
+                      >
+                        -
+                      </button>
+                      <div className="w-8 h-6 bg-gray-100 border border-gray-300 flex items-center justify-center text-sm">
                         {cart[product.id] || 0}
                       </div>
                       <button
                         onClick={() => updateQuantity(product.id, true)}
-                        className="w-4 h-4 md:w-5 md:h-5 bg-gray-100 border border-gray-300 flex items-center justify-center text-xs"
+                        className="w-6 h-6 bg-gray-100 border border-gray-300 flex items-center justify-center text-sm"
                       >
                         +
                       </button>
                     </div>
                   </div>
             
-                  <div className="font-medium text-black text-xs md:text-sm w-full mt-1">
+                  <div className="font-bold text-black mt-1">
                     ₹ {product.price}
                   </div>
                 </div>
@@ -217,11 +226,11 @@ export const Box = (): JSX.Element => {
           ))}
         </div>
 
-        {/* IMPROVED MOBILE PRODUCT LAYOUT - Full width cards */}
-        <div className="block sm:hidden mt-40 mb-5 relative z-20 flex-grow">
-          <div className="flex flex-col gap-10 items-center">
+        {/* Mobile product layout - more consistent across different mobile devices */}
+        <div className="block sm:hidden mt-32 mb-5 relative z-20 flex-grow">
+          <div className="flex flex-col gap-4 items-center">
             {products.map((product) => (
-              <Card key={`mobile-${product.id}`} className="w-11/12 h-full overflow-hidden border border-gray-200 rounded shadow-sm">
+              <Card key={`mobile-${product.id}`} className="w-full overflow-hidden border border-gray-200 rounded shadow-sm">
                 <CardContent className="p-3">
                   <div className="flex flex-row">
                     {/* Product image */}
@@ -244,12 +253,14 @@ export const Box = (): JSX.Element => {
                         </div>
                       </div>
                       
-                      {/* Quantity controls */}
+                      {/* Quantity controls - consistent sizing */}
                       <div className="flex items-center gap-1 mt-2">
                         <button
                           onClick={() => updateQuantity(product.id, false)}
                           disabled={!cart[product.id]}
-                          className={`w-8 h-8 flex items-center justify-center text-sm ${cart[product.id] ? 'bg-gray-100 border border-gray-300' : 'bg-gray-50 border border-gray-200 text-gray-300'}`}
+                          className={`w-8 h-8 flex items-center justify-center text-sm ${
+                            cart[product.id] ? 'bg-gray-100 border border-gray-300' : 'bg-gray-50 border border-gray-200 text-gray-300'
+                          }`}
                         >
                           -
                         </button>
@@ -271,26 +282,26 @@ export const Box = (): JSX.Element => {
           </div>
         </div>
 
-        {/* Checkout button - made slightly larger for mobile */}
-        <div className="sticky bottom-16 sm:bottom-4 flex justify-center mb-2 relative z-20 mt-auto">
+        {/* Checkout button - fixed size for consistent display */}
+        <div className="sticky bottom-20 sm:bottom-8 flex justify-center mb-2 relative z-20 mt-auto">
           <Button 
             onClick={() => setShowCheckout(true)}
-            className="bg-white text-black rounded px-6 py-3 sm:px-4 sm:py-2 flex items-center gap-2 border border-gray-200 hover:bg-gray-200 active:bg-gray-300 transition-colors shadow-md"
+            className="bg-white text-black rounded px-6 py-3 flex items-center gap-2 border border-gray-200 hover:bg-gray-100 active:bg-gray-200 transition-colors shadow-md"
             disabled={getTotalItems() === 0}
           >
-            <span className="font-medium text-sm sm:text-xs">
+            <span className="font-medium text-sm">
               Checkout {getTotalItems() > 0 && `(${getTotalItems()})`}
             </span>
-            <ShoppingCartIcon className="w-4 h-4 sm:w-3 sm:h-3" />
+            <ShoppingCartIcon className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      {/* Footer - Fixed at bottom */}
-      <footer className="relative z-20 bg-white py-2 border-t border-gray-300 w-full">
+      {/* Footer - Fixed at bottom with consistent spacing */}
+      <footer className="relative z-20 bg-white py-3 border-t border-gray-300 w-full mt-auto">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
               {footerLinks.map((link, index) => (
                 <a
                   key={index}
@@ -301,7 +312,7 @@ export const Box = (): JSX.Element => {
                 </a>
               ))}
             </div>
-            <div className="font-normal text-black text-xs text-center md:text-right">
+            <div className="font-normal text-black text-xs text-center sm:text-right">
               rarepackage regd. trademark
             </div>
           </div>
