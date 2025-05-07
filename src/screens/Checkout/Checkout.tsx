@@ -24,6 +24,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
     coupon: ''
   });
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -43,19 +44,75 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
     return orderItems;
   };
 
+  // Send order data to Google Sheets
+  const sendToGoogleSheets = async (paymentId: string) => {
+    try {
+      // Create timestamp for order
+      const orderDate = new Date().toISOString();
+      
+      // Prepare order items details
+      const orderItems = products
+        .filter(product => cart[product.id] > 0)
+        .map(product => `${product.name} (${product.id}) x ${cart[product.id]} @ ₹${product.price}`)
+        .join('; ');
+
+      // Prepare data for Google Sheets
+      const sheetData = {
+        timestamp: orderDate,
+        paymentId: paymentId,
+        customerName: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        orderItems: orderItems,
+        totalItems: Object.values(cart).reduce((sum, qty) => sum + qty, 0),
+        totalAmount: totalAmount,
+        couponUsed: formData.coupon || 'None'
+      };
+
+      // Your Google Sheets Web App URL
+      // This should be the URL of your Google Apps Script web app that processes the form data
+      const googleSheetsWebAppUrl = 'https://script.google.com/macros/s/AKfycbzR_lWvy9VBV3ZhHgEu53VHeNzfvewUCFeuDIE1ShspDgYZlxcPfmXm31WtMRCAgJt5/exec';
+
+      // Send data to Google Sheets via the Apps Script web app
+      const response = await fetch(googleSheetsWebAppUrl, {
+        method: 'POST',
+        mode: 'no-cors', // Important for CORS issues
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sheetData),
+      });
+
+      console.log('Order data sent to Google Sheets');
+      return true;
+    } catch (error) {
+      console.error('Error sending data to Google Sheets:', error);
+      // Still show success to user but log the error
+      return false;
+    }
+  };
+
   const handlePayment = async () => {
+    setIsSubmitting(true);
+    
     // Prepare order details for Razorpay
     const orderDetails = getOrderDetails();
     
     const options = {
-      key: 'rzp_test_jGfRdmlCNRkARB', 
+      key: 'rzp_test_kJXmYY8fho7kYa', 
       amount: totalAmount * 100, 
       currency: 'INR',
       name: 'Rare Package',
       description: 'Purchase from Rare Package',
       order_id: '', // This would come from your backend
-      handler: function(response: any) {
+      handler: async function(response: any) {
+        // Send order details to Google Sheets after payment confirmation
+        await sendToGoogleSheets(response.razorpay_payment_id);
+        
+        // Show success message to user
         setShowSuccess(true);
+        setIsSubmitting(false);
         console.log('Payment successful:', response);
       },
       prefill: {
@@ -70,6 +127,11 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
       },
       theme: {
         color: '#000000'
+      },
+      modal: {
+        ondismiss: function() {
+          setIsSubmitting(false);
+        }
       }
     };
 
@@ -92,31 +154,14 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
     return Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   };
 
-  // Create RARE PACKAGE items for horizontal strips
-  const createHorizontalRarePackageItems = (count) => {
+  // Create RARE PACKAGE items with consistent styling - using the same pattern as Box component
+  const createBannerItems = (count) => {
     return Array(count).fill(0).map((_, index) => (
       <div
         key={index}
-        className="inline-flex items-center justify-center px-2 py-1 mx-1 border border-gray-300 bg-white"
+        className="inline-flex items-center justify-center gap-2.5 p-1 mx-1 relative flex-[0_0_auto] rounded border border-solid border-[#373737]"
       >
-        <div className="font-mono font-bold text-gray-700 text-xs tracking-tight whitespace-nowrap">
-          RARE PACKAGE
-        </div>
-      </div>
-    ));
-  };
-
-  // Create RARE PACKAGE items for vertical strips
-  const createVerticalRarePackageItems = (count) => {
-    return Array(count).fill(0).map((_, index) => (
-      <div
-        key={index}
-        className="flex items-center justify-center px-1 py-2 my-1 border border-gray-300 bg-white"
-      >
-        <div 
-          className="font-mono font-bold text-gray-700 text-xs tracking-tight whitespace-nowrap"
-          style={{ writingMode: "vertical-rl", textOrientation: "mixed", transform: "rotate(180deg)" }}
-        >
+        <div className="relative w-fit mt-[-1.00px] [font-family:'JetBrains_Mono',Helvetica] font-bold text-[#373737] text-base tracking-[-0.96px] leading-[normal]">
           RARE PACKAGE
         </div>
       </div>
@@ -126,7 +171,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
   // Animation variants - matching Box component
   const horizontalStripVariants = {
     animate: {
-      x: [0, -200],
+      x: [-200, 0],
       transition: {
         x: {
           repeat: Infinity,
@@ -140,7 +185,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
 
   const verticalStripVariants = {
     animate: {
-      y: [0, -200],
+      y: [-200, 0],
       transition: {
         y: {
           repeat: Infinity,
@@ -173,68 +218,85 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
   return (
     <main className="relative w-full min-h-screen bg-white overflow-hidden">
       <div className="container mx-auto px-4 py-8 relative">
-        {/* DESKTOP ANIMATIONS */}
-        <div className="hidden md:block">
-          {/* Desktop horizontal strip */}
+        {/* ANIMATIONS FOR ALL SCREEN SIZES - Exactly matching Box component */}
+        <div className="hidden sm:block">
+          {/* Horizontal strip for tablet and desktop */}
           <div className="fixed w-full h-24 top-20 left-0 z-10 overflow-hidden" 
                style={{ transform: "rotate(-3deg)", transformOrigin: "center center" }}>
             <motion.div 
-              className="flex flex-row flex-nowrap whitespace-nowrap py-2"
+              className="flex flex-row flex-nowrap whitespace-nowrap py-2 bg-[#f1f1f1] rounded gap-1 p-2.5"
               style={{ width: "400%" }}
               variants={horizontalStripVariants}
               animate="animate"
             >
-              {createHorizontalRarePackageItems(40)}
-              {createHorizontalRarePackageItems(40)}
+              {createBannerItems(20)}
+              {createBannerItems(20)}
             </motion.div>
           </div>
 
-          {/* Desktop vertical strip */}
-          <div className="fixed h-screen w-16 top-0 right-8 z-10 overflow-hidden"
+          {/* Vertical strip for tablet and desktop */}
+          <div className="fixed h-screen w-[4%] top-0 right-8 z-10 overflow-hidden" 
                style={{ transform: "rotate(-6deg)", transformOrigin: "top right" }}>
-            <motion.div 
-              className="flex flex-col items-center"
-              style={{ height: "200%" }}
-              variants={verticalStripVariants}
-              animate="animate"
-            >
-              {createVerticalRarePackageItems(25)}
-              {createVerticalRarePackageItems(25)}
-            </motion.div>
+            <div className="h-full w-full flex flex-col">
+              <motion.div 
+                className="flex flex-col whitespace-nowrap py-8 bg-[#f1f1f1] rounded gap-16 p-2.5"
+                style={{ height: "400%" }}
+                variants={verticalStripVariants}
+                animate="animate"
+              >
+                {Array(12).fill(0).map((_, index) => (
+                  <div key={`vertical-${index}`} className="w-full flex justify-center my-4">
+                    <div className="rotate-90 inline-flex items-center justify-center p-2 relative rounded border border-solid border-[#373737]">
+                      <div className="relative w-fit [font-family:'JetBrains_Mono',Helvetica] font-bold text-[#373737] text-base tracking-[-0.96px] leading-[normal]">
+                        RARE PACKAGE
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
           </div>
         </div>
 
-        {/* MOBILE ANIMATIONS - Optimized for consistent display across devices */}
-        <div className="md:hidden">
+        {/* Mobile animations - Matching Box component */}
+        <div className="sm:hidden">
           {/* Mobile horizontal strip */}
           <div className="fixed w-full h-16 top-16 left-0 z-10 overflow-hidden" 
                style={{ transform: "rotate(5deg)", transformOrigin: "center center" }}>
             <motion.div 
-              className="flex flex-row flex-nowrap whitespace-nowrap py-2"
+              className="flex flex-row flex-nowrap whitespace-nowrap py-2 bg-[#f1f1f1] rounded gap-1 p-2.5"
               style={{ width: "400%" }}
               variants={horizontalStripVariants}
               animate="animate"
             >
-              {createHorizontalRarePackageItems(40)}
-              {createHorizontalRarePackageItems(40)}
+              {createBannerItems(20)}
+              {createBannerItems(20)}
             </motion.div>
           </div>
 
           {/* Mobile vertical strip */}
-          <div className="fixed h-screen w-12 top-0 left-8 z-10 overflow-hidden"
+          <div className="fixed h-screen w-[15%] top-0 left-8 z-10 overflow-hidden"
                style={{ transform: "rotate(11deg)", transformOrigin: "top left" }}>
-            <motion.div 
-              className="flex flex-col items-center"
-              style={{ height: "200%" }}
-              variants={verticalStripVariants}
-              animate="animate"
-            >
-              {createVerticalRarePackageItems(25)}
-              {createVerticalRarePackageItems(25)}
-            </motion.div>
+            <div className="h-full w-full flex flex-col">
+              <motion.div 
+                className="flex flex-col whitespace-nowrap py-8 bg-[#f1f1f1] rounded gap-16 p-2.5"
+                style={{ height: "400%" }}
+                variants={verticalStripVariants}
+                animate="animate"
+              >
+                {Array(12).fill(0).map((_, index) => (
+                  <div key={`mobile-vertical-${index}`} className="w-full flex justify-center my-4">
+                    <div className="-rotate-90 inline-flex items-center justify-center p-2 relative rounded border border-solid border-[#373737]">
+                      <div className="relative w-fit [font-family:'JetBrains_Mono',Helvetica] font-bold text-[#373737] text-base tracking-[-0.96px] leading-[normal]">
+                        RARE PACKAGE
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
           </div>
         </div>
-
         <div className="max-w-3xl mx-auto mt-12 sm:mt-16 relative z-20">
           <button
             onClick={onBack}
@@ -364,9 +426,10 @@ export const Checkout: React.FC<CheckoutProps> = ({ cart, products, onBack, tota
             <div className="flex justify-center mt-8">
               <Button
                 type="submit"
-                className="bg-black text-white py-3 px-8 rounded flex items-center gap-2 hover:bg-gray-800 transition-colors w-full sm:w-auto"
+                disabled={isSubmitting}
+                className={`bg-black text-white py-3 px-8 rounded flex items-center gap-2 hover:bg-gray-800 transition-colors w-full sm:w-auto ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                Proceed To Payment →
+                {isSubmitting ? 'Processing...' : 'Proceed To Payment →'}
               </Button>
             </div>
           </form>
